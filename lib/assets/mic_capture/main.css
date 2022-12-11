@@ -1,0 +1,17 @@
+#root {
+    display: flex;
+    gap: 16px;
+}
+
+#wrapper {
+    height: 32px;
+    display: flex;
+    align-items: flex-end;
+}
+
+#indicator {
+    display: inline-block;
+    width: 16px;
+    background-color: limegreen;
+    height: 0%;
+}

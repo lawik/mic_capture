@@ -1,0 +1,58 @@
+# Untitled notebook
+
+```elixir
+# Your path may vary
+path = Path.join(Path.expand("~"), "projects/media_capture_smartcell")
+
+Mix.install([
+  {:mic_capture, path: path},
+  {:vega_lite, "~> 0.1.6"},
+  {:kino_vega_lite, "~> 0.1.7"}
+])
+
+alias VegaLite, as: Vl
+```
+
+## Section
+
+```elixir
+foo = self()
+```
+
+```elixir
+MicCapture.new(foo)
+```
+
+```elixir
+chart =
+  Vl.new(width: 1000, height: 400)
+  |> Vl.mark(:line)
+  |> Vl.encode_field(:x, "x", type: :quantitative)
+  |> Vl.encode_field(:y, "y", type: :quantitative)
+  |> Kino.VegaLite.new()
+  |> Kino.render()
+
+Kino.VegaLite.clear(chart)
+```
+
+```elixir
+fetch = fn self, x ->
+  receive do
+    {:audio, buf} ->
+      points =
+        buf
+        |> :binary.bin_to_list()
+        # |> Enum.take_every(250)
+        |> Enum.with_index(x)
+        |> Enum.map(fn {level, index} ->
+          %{x: index, y: level}
+        end)
+
+      Kino.VegaLite.clear(chart)
+      Kino.VegaLite.push_many(chart, points)
+      self.(self, x + Enum.count(points))
+  end
+end
+
+fetch.(fetch, 0)
+```
